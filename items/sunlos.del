@@ -1,0 +1,81 @@
+import "../main.del";
+globalvar Vector dirToSun;
+rule: "Sun/Moon Locations"
+{
+    switch (CurrentMap())
+    {
+        case (Map.Chateau_Guillard):
+            dirToSun = Vector(-0.53, 0.77, 0.37);
+            break;
+        case (Map.Malevento):
+            dirToSun = Vector(-0.52, 0.63, -0.58);
+            break;
+        case (Map.Route_66):
+            dirToSun = Vector(-0.58, 0.60, -0.54);
+            break;
+        default:
+            break;
+    }
+}
+
+playervar Boolean sunLos;
+playervar Any sunEffect;
+playervar Any sunDOT;
+rule: "LOS of Sun/Moon"
+Event.OngoingPlayer
+if (HasSpawned())
+if (IsAlive())
+if (sunDOT == null)
+if (!HasStatus(player, Status.PhasedOut))
+if (Update(DistanceBetween(EyePos(), RayHit(EyePos(), EyePos() + dirToSun * 1000)) > 999) || 
+    Update(DistanceBetween(PosOf(), RayHit(PosOf(), PosOf() + dirToSun * 1000)) > 999))
+{
+    if (EntityExists(sunEffect))
+    {
+        DestroyEffect(sunEffect);
+
+        StopDamageOverTime(sunDOT);
+        sunDOT = null;
+
+        SetDamageDealt(player, dmgOutVal);
+        SetDamageReceived(player, dmgInVal);
+    }
+
+    PlayEffect(player, PlayEffect.ReinhardtFireStrikeTargetImpactSound, Color.Team1, PosOf(), 100);
+    CreateEffect(player, Effect.WinstonPrimalRageEffect, Color.Team1, player, 1);
+    sunEffect[0] = LastCreatedEntity();
+    CreateEffect(player, Effect.WreckingBallPiledriverFireSound, Color.Team1, player, 50);
+    sunEffect[1] = LastCreatedEntity();
+
+    SetDamageDealt(player, dmgOutVal * 2);
+    SetDamageReceived(player, dmgInVal * 2);
+
+    StartDamageOverTime(player, null, 99999, 20);
+    sunDOT = LastDamageOverTime();
+    Wait(0.25);
+    LoopIfConditionIsTrue();
+}
+
+rule: "No LOS of Sun/Moon"
+Event.OngoingPlayer
+if (sunDOT != null || IsDead())
+if (Update(DistanceBetween(EyePos(), RayHit(EyePos(), EyePos() + dirToSun * 1000)) < 999))
+if (Update(DistanceBetween(PosOf(), RayHit(PosOf(), PosOf() + dirToSun * 1000)) < 999))
+{
+    DestroyEffect(sunEffect);
+
+    StopDamageOverTime(sunDOT);
+    sunDOT = null;
+
+    SetDamageDealt(player, dmgOutVal);
+    SetDamageReceived(player, dmgInVal);
+    Wait(0.25);
+    LoopIfConditionIsTrue();
+}
+
+rule: "Debug sun los"
+Event.OngoingPlayer
+{
+    CreateBeamEffect(player, BeamType.TorbjornTurretSightBeam, Update(EyePos()), Update(RayHit(EyePos(), EyePos() + dirToSun * 1000)), Color.Team1);
+    CreateBeamEffect(player, BeamType.TorbjornTurretSightBeam, Update(PosOf()), Update(RayHit(PosOf(), PosOf() + dirToSun * 1000)), Color.Team1);
+}

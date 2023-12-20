@@ -1,0 +1,136 @@
+import "../macros-ostw/main.del";
+import "settings.json";
+
+import "hud.del";
+
+
+import "items/sunlos.del";
+// import "noclip.del";
+
+rule: "Init"
+{
+    SetMatchTime(5);
+    DebugInfo(host);
+
+    DisableCompletion();
+    WaitUntil(!IsAssemblingHeroes(), 999999);
+    DisableAnnouncer();
+    PauseMatchTime();
+}
+
+globalvar Number groupAmt = 10; // how many projectiles every full rotation
+globalvar Number projectileAmt = Ceil(10 / groupAmt) * groupAmt; // total amount of projectiles
+globalvar Number groupDeg = 360 / groupAmt; // amount of degrees to create the next projectile for the next loop
+globalvar Number initSpread = 3; // spread size
+globalvar Vector[] points;
+
+rule: "effect" 
+Event.OngoingPlayer
+if (IsAbility1Held())
+{
+
+
+    // DestroyAllInworldText();
+    // DestroyAllEffects();
+
+    // Number numGroups = projectileAmt / groupAmt;
+    // Number spread = initSpread;
+    // Number offset = 0;
+
+    // for (Number i = 1; i <= projectileAmt; i++)
+    // {
+    //     Vector angle: SpreadAngleDirection(player, spread, (i * groupDeg) + offset);
+    //     CreateEffect(player, Effect.Sphere, Color.Black, RayHit(EyePos(), EyePos() + angle * 1000), 0, EffectRev.None);
+
+    //     if (i != 1 && i % groupAmt == 0)
+    //     {
+    //         spread = initSpread - Near(i / groupAmt) * (initSpread / numGroups);
+    //         offset += groupDeg / 2; // spread rotation offset (degrees)
+    //     }
+    // }
+}
+
+playervar Number projVal;
+playervar Number gravVal;
+playervar Number hpVal;
+playervar Number healVal;
+playervar Number dmgOutVal;
+playervar Number dmgInVal;
+playervar Number speedVal;
+playervar Any healthPoolID;
+
+rule: "Init Player"
+Event.OnPlayerJoin
+{
+    // set player properties to default values since theyre set high in lobby settings and it allows me to go above those values, fuck you blizzard for hard capping these
+    projVal = 20; // lobby: 500%
+    gravVal = 25; // lobby: 400%
+    hpVal = 100; // lobby: 100%
+    healVal = 100; // lobby: 100%
+    dmgOutVal = 20; // lobby: 500%
+    dmgInVal = 100; // lobby: 100%
+    speedVal = 33.33333334; // lobby: 300%
+
+    SetProjectileSpeed(player, projVal);
+    SetProjectileGravity(player, projVal);
+    SetHealingDealt(player, healVal);
+    SetDamageDealt(player, dmgOutVal);
+    SetDamageReceived(player, dmgInVal);
+    SetGravity(player, gravVal);
+    SetMoveSpeed(player, speedVal);
+
+    DisableGameModeHud();
+    DisableKillFeed();
+    DisableRespawning();
+}
+
+// rule: "Player Alive"
+// Event.OngoingPlayer
+// if (IsAlive())
+// {
+//     SetMaxHealth(player, hpVal);
+// }
+
+rule: "Initial Player Spawn"
+Event.OngoingPlayer
+if (!IsDummyBot())
+if (HasSpawned())
+{
+    SetAllowedHeroes(player, HeroOf());
+}
+
+rule: "Player Killed Themself"
+Event.OnDeath
+if (!IsDummyBot())
+if (EventWasEnvironment())
+{
+    Vector deathPos! = PosOf();
+    Vector deathFac! = Facing(); 
+    Respawn();
+
+    WaitUntil(IsAlive(Victim()), 1);
+
+    Teleport(player, NearestWalkablePos(deathPos));
+    SetFacing(player, deathFac);
+    SetPlayerHealth(player, 1);
+    SetStatus(player, null, Status.PhasedOut, 9999);
+}
+
+rule: "Healing Recieved"
+Event.OnHealingTaken
+if (HasStatus(player, Status.PhasedOut))
+{
+    Wait(2);
+    ClearStatus(player, Status.PhasedOut);
+}
+
+// playervar Number hpAdd; 
+// rule: "test"
+// Event.OngoingPlayer
+// if (IsInteractHeld())
+// {
+//     hpAdd = Floor(MaxHealth() * 0.05);
+//     // hpVal += hpAdd;
+//     AddHealthPoolToPlayer(player, HealthType.Armor, hpAdd, true, true);
+//     Heal(player, null, hpAdd);
+// }

@@ -1,0 +1,59 @@
+{
+  "Lobby": {
+    "Allow Players Who Are In Queue": true,
+    "Map Rotation": "After A Game",
+    "Max Team 1 Players": 3,
+    "Max Team 2 Players": 0,
+    "Max Spectators": 2,
+    "Return To Lobby": "Never"
+  },
+  "Modes": {
+    "All": {
+        "Hero Limit": "Off",
+        "Spawn Health Packs": "Disabled",
+        "Game Mode Start": "Immediately",
+        "Kill Cam": false
+    },
+    "Team Deathmatch": {
+        "Enabled Maps": [
+            "Château Guillard",
+            "Malevento"
+        ]
+    }
+  },
+  "Heroes": {
+    "General": {
+        "General": {
+            "No Ammunition Requirement": true,
+            "Projectile Speed": 500,
+            "Projectile Gravity": 500,
+            "Movement Gravity": 400,
+            "Movement Speed": 300,
+            "Damage Dealt": 500
+        },
+        "Lifeweaver": {
+            "Petal Platform Health": 500
+        },
+        "Enabled Heroes": [
+            "Ana",
+            "Kiriko",
+            "Lifeweaver"
+        ]
+    }
+  },
+  "Extensions": { 
+    "Beam Effects": true,
+    "Beam Sounds": true,
+    "Projectiles": true,
+    "Buff and Debuff Sounds": true,
+    "Buff Status Effects": true,
+    "Debuff Status Effects": true,
+    "Energy Explosion Effects": true,
+    "Explosion Sounds": true,
+    "Kinetic Explosion Effects": true,
+    "Play More Effects": true, 
+    "Spawn More Dummy Bots": true
+  },
+  "Mode Name": "Swarm",
+  "Description": "A Risk of Rain 2 inspired wave based PvE mode"
+}

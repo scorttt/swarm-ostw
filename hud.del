@@ -1,0 +1,33 @@
+import "main.del";
+rule: "Low Health Warning"
+{
+    // spacing
+    CreateHudText(
+        VisibleTo: local,
+        Text: " \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        Location: Location.Top,
+        SortOrder: 0,
+        TextColor: null,
+        Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor 
+    );
+
+    // low health
+    CreateHudText(
+        VisibleTo: IsAlive(local) && NormalizedHealth(local) < 0.35 ? local : null,
+        Text: $"{IconString(Icon.Warning)}  LOW HEALTH {IconString(Icon.Warning)}",
+        Location: Location.Top,
+        SortOrder: 1,
+        TextColor: CustomColor(255, 0, 0, Oscillate(1000, 50, 255)),
+        Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor 
+    );
+
+    // sun/moon los
+    CreateHudText(
+        VisibleTo: IsAlive(local) && local.sunDOT != null ? local : null,
+        Text: $"{IconString(Icon.Warning)}  Stay in the shade! {IconString(Icon.Warning)}",
+        Location: Location.Top,
+        SortOrder: 2,
+        TextColor: CustomColor(255, Oscillate(1000, 50, 255), 0, Oscillate(1000, 50, 255)),
+        Reevaluation: HudTextRev.VisibleToSortOrderStringAndColor 
+    );
+}
